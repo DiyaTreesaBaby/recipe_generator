@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Recipe Generator</title>
+
+  <!-- Add Google Font for modern heading -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #a8e063, #56ab2f);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      background: #ffffffee;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      padding: 30px 40px;
+      max-width: 500px;
+      width: 90%;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      0% { opacity: 0; transform: scale(0.95); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    h2 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 34px;
+      font-weight: 700;
+      text-align: center;
+      color: #1b5e20;
+      margin-bottom: 25px;
+      letter-spacing: 1px;
+      text-shadow: 1px 1px 2px #cdeac0;
+    }
+
+    label {
+      font-weight: 600;
+      color: #333;
+      margin-top: 15px;
+      display: block;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+      margin-top: 6px;
+      background-color: #e8f5e9;
+      font-size: 14px;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    input:focus, select:focus {
+      background-color: #d0f0d6;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #56ab2f, #a8e063);
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 10px;
+      margin-top: 20px;
+      font-size: 16px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.3);
+    }
+
+    #output {
+      margin-top: 25px;
+      padding: 15px;
+      background: #f9f9fb;
+      border-left: 5px solid #66bb6a;
+      border-radius: 10px;
+      color: #333;
+      font-size: 15px;
+      white-space: pre-wrap;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    #loading {
+      margin-top: 10px;
+      font-style: italic;
+      color: #666;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Recipe Generator</h2>
+
+    <label for="ingredients">Ingredients</label>
+    <input type="text" id="ingredients" placeholder="e.g., tomatoes, onions, garlic" />
+
+    <label for="preference">Dish Preference</label>
+    <select id="preference">
+      <option value="">-- Select --</option>
+      <option value="vegetarian">Vegetarian</option>
+      <option value="non-vegetarian">Non-Vegetarian</option>
+    </select>
+
+    <label for="cuisine">Preferred Cuisine</label>
+    <select id="cuisine">
+      <option value="">-- Select --</option>
+      <option value="Indian">Indian</option>
+      <option value="Chinese">Chinese</option>
+      <option value="Italian">Italian</option>
+      <option value="Any">Any</option>
+    </select>
+
+    <button onclick="generateRecipe()">Generate Recipe</button>
+
+    <div id="loading"></div>
+    <div id="output"></div>
+  </div>
+
+  <script>
+    async function generateRecipe() {
+      const ingredients = document.getElementById('ingredients').value.trim();
+      const preference = document.getElementById('preference').value.trim();
+      const cuisine = document.getElementById('cuisine').value.trim();
+      const outputDiv = document.getElementById('output');
+      const loadingDiv = document.getElementById('loading');
+
+      outputDiv.innerHTML = '';
+      loadingDiv.innerHTML = 'Generating your recipe... Please wait ⏳';
+
+      const response = await fetch('/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ ingredients, preference, cuisine })
+      });
+
+      const data = await response.json();
+
+      loadingDiv.innerHTML = '';
+      if (data.recipe) {
+        outputDiv.innerHTML = `<strong>Suggested Recipe:</strong><br><br>${data.recipe}`;
+      } else {
+        outputDiv.innerHTML = `<span style="color:red;">❌ Error: ${data.error}</span>`;
+      }
+    }
+  </script>
+
+</body>
+</html>
